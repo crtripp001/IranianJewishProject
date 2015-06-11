@@ -1,0 +1,114 @@
+html { height: 100% }
+body { height: 100%; margin: 0px; padding: 0px; }
+
+/*Elements on HTML page*/
+    #Leftside {
+      float:left; 
+      width: 60%; 
+      height: 100%;}
+
+    #Rightside {
+      float: right; 
+      width: 40%; 
+      height: 100%; 
+      padding-right: 10px;
+    }
+
+    #map_canvas { 
+      height:60%; 
+      width: 100%; 
+      float: right;
+    }
+
+    #timebar { 
+      height:50%; 
+      width: 100%; 
+      float: right;
+    }
+
+    #EventStreamer { 
+      height:100%; 
+      width: 100%; 
+      float: left; 
+      padding-right: 10px; 
+      overflow: auto;
+      font-family: Helvetica;
+      padding-bottom: 120px;
+    }
+
+    #FAQ {
+      height:100%; 
+      width: 100%; 
+      float: left; 
+      padding-right: 10px; 
+      overflow: auto;
+      font-family: Helvetica;
+    }
+
+    #buttons1 {
+      padding-left: 100px;
+      padding-bottom: 40px;
+      padding-top: 45px;
+      background-color: lightgray;
+      width: auto;
+    }
+
+    #fun1 {
+      font-family: Helvetica;
+    }
+
+    .RbtnMargin{ 
+      margin-right: 5px;
+    }
+
+    #banner {
+      width: 100%;
+    }
+
+    #legend {
+      width: 100%;
+      height: auto;
+    }
+
+/*Fonts*/
+
+    h1 {
+      font-style: bold;
+      color: blue;
+      margin-bottom: 10px;
+      margin-left: 0;
+      font-family: Helvetica;
+      text-align: left;
+    }
+
+    h3 {
+      font-style: bold;
+      color: darkblue;
+      font-family: Helvetica;
+      margin-bottom: 10px;
+      margin-left: 20%;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    p {
+    text-indent: 50px;
+}
+
+/* create a custom sized dot at the bottom of the red item */
+    .item.box.la {
+      background-color: white;
+      border-color: darkblue;
+      border-width: 3px;
+      color: white ;
+      font-family: monospace ;
+    }
+
+/* create a custom sized dot at the bottom of the red item */
+    .item.box.world {
+      background-color: white;
+      border-color: green ;
+      border-width: 3px;
+      color: white ;
+      font-family: monospace ;
+    }
