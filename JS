@@ -1,0 +1,311 @@
+/* Global variables */
+
+// namespace
+var timemap = {};
+
+// array to hold map markers
+var markers = [];
+
+// allowed selected marker to be used outside of google maps
+var selectedMarker;
+
+// infowindow
+var infowindow= new google.maps.InfoWindow();
+
+// timebar items array
+var timebaritems = [];
+
+
+/* jQuery to tell the page to start with the init function */
+$( document ).ready(function() {
+	timemap.init();
+});
+
+/* The initial function */
+timemap.init = function()
+{
+	// gray map style
+	var mapstyle = [{"featureType":"administrative.province","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"all","stylers":[{"saturation":-100},{"lightness":65},{"visibility":"on"}]},{"featureType":"poi","elementType":"all","stylers":[{"saturation":-100},{"lightness":51},{"visibility":"simplified"}]},{"featureType":"road.highway","elementType":"all","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"all","stylers":[{"saturation":-100},{"lightness":30},{"visibility":"on"}]},{"featureType":"road.local","elementType":"all","stylers":[{"saturation":-100},{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","elementType":"all","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"transit","elementType":"geometry.fill","stylers":[{"visibility":"on"}]},{"featureType":"water","elementType":"geometry","stylers":[{"hue":"#ffff00"},{"lightness":-25},{"saturation":-97}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":-25},{"saturation":-100}]}]
+	//the lat/lon variable that will be used to center the map
+	var latlng = new google.maps.LatLng(34.005904513220216, -118.40902449999999);
+
+	//map configurations
+	var myOptions = {
+		zoom: 10,
+		center: latlng,
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+		styles: mapstyle
+	};
+
+	//create the map
+	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+	//get data
+	timemap.getData();
+
+}
+
+/* Function to get the data */
+timemap.getData = function()
+{
+	$.getJSON('https://spreadsheets.google.com/feeds/list/1zZmyVSzzNbnDKDw61FwC6iVgLwD82QKDg4H6n3C8Sdo/od6/public/values?alt=json',function(data){
+		// manually create an id
+		console.log(data);
+	
+		var id = 0;
+
+	$.each(data.feed.entry,function(i,val){
+	
+	//sort images to specific points on the timeline
+		if (val.gsx$group.$t == 1) {
+			className = 'la';
+		}
+		else if ( val.gsx$group.$t == 2) {
+			className = 'world';
+		}
+
+
+		if (val.gsx$pix.$t == 1) {
+		  var item1 = document.createElement('div');
+		  var img1 = document.createElement('img');
+		  img1.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/communityicon.png';
+		  item1.appendChild(img1)
+		}
+		else if (val.gsx$pix.$t == 2) {
+
+		  var item1 = document.createElement('div');
+		  var img2 = document.createElement('img');
+		  img2.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/shopicon.png';
+		  item1.appendChild(img2)
+		}
+		else if (val.gsx$pix.$t == 3){
+
+		  var item1 = document.createElement('div');
+		  var img3 = document.createElement('img');
+		  img3.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/restauranticon.png';
+		  item1.appendChild(img3)
+		}
+
+		else if (val.gsx$pix.$t == 4){
+
+		  var item1 = document.createElement('div');
+		  var img4 = document.createElement('img');
+		  img4.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/religiousicon.png';
+		  item1.appendChild(img4)
+		}
+
+		else if (val.gsx$pix.$t == 5){
+
+		  var item1 = document.createElement('div');
+		  var img5 = document.createElement('img');
+		  img5.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/iranflag.jpg';
+		  item1.appendChild(img5)
+		}
+
+		else if (val.gsx$pix.$t == 6){
+
+		  var item1 = document.createElement('div');
+		  var img6 = document.createElement('img');
+		  img6.src = 'http://sandbox.idre.ucla.edu/dh150/2015/Joanna/IranianJewishFinal/icons/USflag.jpg';
+		  item1.appendChild(img6)
+		}
+
+			var markerdata = {
+				name: val.gsx$description.$t,
+				content: item1,
+				lat: val.gsx$lat.$t,
+				lng: val.gsx$lng.$t,
+				id: val.gsx$id1.$t,
+				start: val.gsx$year.$t,
+				group: val.gsx$group.$t,
+      			className: className,
+      			icon: val.gsx$icons.$t,
+      			image: val.gsx$image.$t,
+      			link: val.gsx$link.$t,
+      			title1: val.gsx$organization.$t,
+
+			}
+			id++; //increment the id
+
+
+			// add the data to the timebar items array
+			timebaritems.push(markerdata);
+
+			// map the data
+			timemap.createMarker(markerdata);
+		})
+
+		// now that the loop has completed, create the timebar
+		timemap.createTimebar();
+	});
+
+
+}
+
+/* Function to create markers */
+timemap.createMarker = function(options){
+	var markerLatLng = new google.maps.LatLng(options.lat,options.lng);
+	var marker = new google.maps.Marker({
+		id: options.id,
+		position: markerLatLng,
+		map: map,
+		title: options.title1,
+		icon: options.icon, 
+	});
+ 
+	// add to markers array
+ 	markers.push(marker);
+
+	//the event listener that activates the infowindow on user click
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent('<div style="width:200px">'+options.title1+'</div>');
+		infowindow.open(map,marker);
+		timemap.scrollToDiv(options.id);
+	});
+}
+
+//function scrolls through Events in history when you click on an icon in either the timebar or the map
+timemap.scrollToDiv = function(id)
+{
+	$('#EventStreamer').animate({
+		scrollTop: $('#fun-'+id).parent().scrollTop() + $('#fun-'+id).offset().top - $('#fun-'+id).parent().offset().top
+		}, {
+		duration: 1000,
+		specialEasing: {
+			width: 'linear',
+			height: 'easeOutBounce'
+		},
+		complete: function (e) {
+		console.log("animation completed");
+		}
+	});
+}
+
+
+/* Function to create the timebar */
+timemap.createTimebar = function()
+{
+	var timebarcontainer = document.getElementById('timebar');
+
+	// Create a DataSet (allows two way data-binding)
+	visitems = new vis.DataSet(timebaritems);
+
+
+
+	// Configuration for the Timeline
+	
+	var options = {
+		height: '100%',
+		margin: {
+			item: 20,
+			axis: 50
+		},
+		orientation: 'bottom',
+        showCurrentTime: true,
+        start: '1890',
+        end: '2020',
+        order: customOrder,
+		};
+
+	// Create a Timeline
+	timeline = new vis.Timeline(timebarcontainer, visitems, options);
+
+	// 'on' rangechanges to the timebar, filter the markers on the map
+	timeline.on('rangechanged', function (properties) {
+		timemap.filterMarkers();
+	});
+
+	timeline.on('select', function (properties) {
+		console.log(properties);
+		var id = Number(properties.items[0]);
+		timemap.scrollToDiv(id);
+	});
+
+	//buttons
+
+	 document.getElementById('fit').onclick = function() {
+	    timeline.fit();
+	 	 };
+	 document.getElementById('window1').onclick = function() {
+    	timeline.setWindow('1890', '1910');
+  		 };
+	 document.getElementById('window2').onclick = function() {
+	    timeline.setWindow('1910', '1930');
+  		 };
+
+	 document.getElementById('window3').onclick = function() {
+	    timeline.setWindow('1930', '1950');
+		 };
+     document.getElementById('window4').onclick = function() {
+    	timeline.setWindow('1950', '1970');
+		 };
+     document.getElementById('window5').onclick = function() {
+    	timeline.setWindow('1970', '1990');
+		 };
+     document.getElementById('window6').onclick = function() {
+    	timeline.setWindow('1990', '2010');
+		 };
+     document.getElementById('window7').onclick = function() {
+    	timeline.setWindow('2010', '2030');
+		 };
+
+}
+
+/* Filter Map Markers */
+timemap.filterMarkers = function()
+{
+	// first clear markers
+	for (i in markers) { markers[i].setMap(null) };
+
+	// items in timebar
+	var itemsInTimebar = timeline.getVisibleItems();
+
+	for (i in itemsInTimebar) {itemsInTimebar[i] = parseInt(itemsInTimebar[i]) }
+
+		//sort items into an arry and order them from earliest date to latest date in history
+		itemsInTimebar.sort( function (a, b) {
+			return a > b ? 1 : a < b ? -1 : 0;
+		});
+
+		console.log(itemsInTimebar)
+
+
+	$('#EventStreamer').empty();
+	
+	//change array of numbers back into strings so timebar and map can upload data
+	for (i in itemsInTimebar) {itemsInTimebar[i] = String(itemsInTimebar[i]) }
+
+	// loop through the items in time bar
+	$.each(itemsInTimebar, function(i,item){
+
+		// let's show these items in the console...
+		// console.log(item)
+
+		// use .filter to find the marker with the same id
+		var filteredMarker = markers.filter(function (marker) { 
+		    return marker.id === item;
+		});
+
+		// yk: create a timebar marker variable
+		var filteredTimeMarker = timebaritems.filter(function (timebaritem) { 
+		    return timebaritem.id === item;
+		});
+
+		// yk: display info of each item in timebar in a "story panel" (div) somewhere on the page
+		// for now, just showing the title of each item in the console window
+		// change this to append content to the EventStreamer div
+		//console.log(filteredTimeMarker[0].content);
+		$('#EventStreamer').append('<div class="well" id="fun-'+filteredTimeMarker[0].id+'"><h2><img src="'+filteredTimeMarker[0].icon+'"> '+filteredTimeMarker[0].start+'</h2><h4>'+filteredTimeMarker[0].title1+'</h4><img class="img-rounded img-thumbnail" src="'+filteredTimeMarker[0].image+'"><br>'+filteredTimeMarker[0].name+'<br><br><a href="'+filteredTimeMarker[0].link+'" target="_blank">Website Link</a></div>');
+
+		// map the marker
+		filteredMarker[0].setMap(map);
+
+	})
+
+}
+
+function customOrder (a, b) {
+    // order by id
+    return a.id - b.id;
+  }
+
